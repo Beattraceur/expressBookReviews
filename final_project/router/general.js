@@ -92,17 +92,43 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 });
 
 // Get book details based on author
-public_users.get('/author/:author', function (req, res) {
+// public_users.get('/author/:author', function (req, res) {
+//   const reqAuthor = req.params.author;
+
+//   let matchingBooks = {};
+
+//   Object.keys(books).forEach((key) => {
+//     const book = books[key];
+//     if (book.author === reqAuthor) {
+//       matchingBooks[key] = book;
+//     }
+//   });
+//   if (Object.keys(matchingBooks).length === 0) {
+//     return res.status(400).json({
+//       message: `No matching Book with the author: ${reqAuthor} was found`,
+//     });
+//   } else {
+//     return res.send(JSON.stringify(matchingBooks, null, 3));
+//   }
+// });
+
+//ASYNC book details based on author
+public_users.get('/author/:author', async function (req, res) {
   const reqAuthor = req.params.author;
 
   let matchingBooks = {};
-
-  Object.keys(books).forEach((key) => {
-    const book = books[key];
-    if (book.author === reqAuthor) {
-      matchingBooks[key] = book;
-    }
-  });
+  try {
+    const bookList = await bookPromise();
+    Object.keys(bookList).forEach((key) => {
+      const book = bookList[key];
+      if (book.author === reqAuthor) {
+        matchingBooks[key] = book;
+      }
+    });
+  } catch (error) {
+    console.error(error.toString());
+    res.status(500).json({ message: 'Error while fetching booklist' });
+  }
   if (Object.keys(matchingBooks).length === 0) {
     return res.status(400).json({
       message: `No matching Book with the author: ${reqAuthor} was found`,
