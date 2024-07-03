@@ -63,8 +63,30 @@ regd_users.post('/login', (req, res) => {
 
 // Add a book review
 regd_users.put('/auth/review/:isbn', (req, res) => {
-  //Write your code here
-  return res.status(300).json({ message: 'Yet to be implemented' });
+  const ISBN = req.params.isbn;
+  const user = req.session.authorization.username;
+  const review = req.body.review;
+  console.log(review);
+  if (!isNaN(ISBN) && ISBN > 0) {
+    if (!books[ISBN]) {
+      return res
+        .status(400)
+        .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
+    } else {
+      if (!review) {
+        return res.status(401).send(`Your review is ${review}`);
+      }
+      if (review.length < 5) {
+        return res.status(402).send(`Your review is too short: ${review}`);
+      }
+      //If the current user has written a review to this book in the past... then it will be updated
+      //otherwise it posts the new review to the books review object
+      books[ISBN].reviews[user] = review;
+      return res.status(200).send(`Hello ${user}, thanks for your review`);
+    }
+  } else {
+    return res.status(400).json({ message: 'This is not a valid ISBN number' });
+  }
 });
 
 module.exports.authenticated = regd_users;
