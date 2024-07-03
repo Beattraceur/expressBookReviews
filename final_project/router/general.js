@@ -16,8 +16,18 @@ public_users.get('/', function (req, res) {
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', function (req, res) {
-  //Write your code here
-  return res.status(300).json({ message: 'Yet to be implemented' });
+  const ISBN = req.params.isbn;
+  if (!isNaN(ISBN) && ISBN > 0) {
+    if (!books[ISBN]) {
+      return res
+        .status(400)
+        .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
+    } else {
+      return res.send(JSON.stringify(books[ISBN], null, 3));
+    }
+  } else {
+    return res.status(400).json({ message: 'This is not a valid ISBN number' });
+  }
 });
 
 // Get book details based on author
