@@ -54,15 +54,37 @@ public_users.get('/', async function (req, res) {
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn', function (req, res) {
+// public_users.get('/isbn/:isbn', function (req, res) {
+//   const ISBN = req.params.isbn;
+//   if (!isNaN(ISBN) && ISBN > 0) {
+//     if (!books[ISBN]) {
+//       return res
+//         .status(400)
+//         .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
+//     } else {
+//       return res.send(JSON.stringify(books[ISBN], null, 3));
+//     }
+//   } else {
+//     return res.status(400).json({ message: 'This is not a valid ISBN number' });
+//   }
+// });
+
+//ASYNC Get book details based on ISBN
+public_users.get('/isbn/:isbn', async function (req, res) {
   const ISBN = req.params.isbn;
   if (!isNaN(ISBN) && ISBN > 0) {
-    if (!books[ISBN]) {
-      return res
-        .status(400)
-        .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
-    } else {
-      return res.send(JSON.stringify(books[ISBN], null, 3));
+    try {
+      const bookList = await bookPromise();
+      if (!bookList[ISBN]) {
+        return res
+          .status(400)
+          .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
+      } else {
+        return res.send(JSON.stringify(bookList[ISBN], null, 3));
+      }
+    } catch (error) {
+      console.error(error.toString());
+      res.status(500).json({ message: 'Error while fetching booklist' });
     }
   } else {
     return res.status(400).json({ message: 'This is not a valid ISBN number' });
