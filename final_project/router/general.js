@@ -31,8 +31,26 @@ public_users.post('/register', (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
-  return res.send(JSON.stringify(books, null, 3));
+// public_users.get('/', function (req, res) {
+//   return res.send(JSON.stringify(books, null, 3));
+// });
+
+//Simulate delayed books API
+const bookPromise = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(books);
+    }, 3000); //Promise resolves after 3sec
+  });
+//Async book list
+public_users.get('/', async function (req, res) {
+  try {
+    const bookList = await bookPromise();
+    res.send(JSON.stringify(bookList, null, 3));
+  } catch (error) {
+    console.error(error.toString());
+    res.status(500).json({ message: 'Error while fetching booklist' });
+  }
 });
 
 // Get book details based on ISBN
