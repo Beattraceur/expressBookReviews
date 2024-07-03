@@ -66,7 +66,6 @@ regd_users.put('/auth/review/:isbn', (req, res) => {
   const ISBN = req.params.isbn;
   const user = req.session.authorization.username;
   const review = req.body.review;
-  console.log(review);
   if (!isNaN(ISBN) && ISBN > 0) {
     if (!books[ISBN]) {
       return res
@@ -83,6 +82,30 @@ regd_users.put('/auth/review/:isbn', (req, res) => {
       //otherwise it posts the new review to the books review object
       books[ISBN].reviews[user] = review;
       return res.status(200).send(`Hello ${user}, thanks for your review`);
+    }
+  } else {
+    return res.status(400).json({ message: 'This is not a valid ISBN number' });
+  }
+});
+
+regd_users.delete('/auth/review/:isbn', (req, res) => {
+  const ISBN = req.params.isbn;
+  const user = req.session.authorization.username;
+  if (!isNaN(ISBN) && ISBN > 0) {
+    if (!books[ISBN]) {
+      return res
+        .status(400)
+        .json({ message: `none of the Books has the ISBN number: ${ISBN}` });
+    } else {
+      if (!books[ISBN].reviews[user]) {
+        return res
+          .status(404)
+          .json({ message: 'There is no review to be deleted' });
+      }
+      res.status(200).json({
+        message: `Your review [ ${books[ISBN].reviews[user]} ] was deleted`,
+      });
+      delete books[ISBN].reviews[user];
     }
   } else {
     return res.status(400).json({ message: 'This is not a valid ISBN number' });
